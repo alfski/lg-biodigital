@@ -34,7 +34,7 @@ http://HOST/PATH/lg-biodigital/control.html
 
 ## Client setup
 
-In the Galaxy CMS create a Scene which has each screen (L3, L2, L1, C, R1, R2, R3) running a full screen browser with this URL -
+In the Galaxy CMS create a Scene which has Web Page Assets for each screen (I call mine L3, L2, L1, C, R1, R2, R3) each running a full screen browser with a URL like -
 
 ```
 http://HOST/PATH/lg-biodigital/client.html?yaw=67
