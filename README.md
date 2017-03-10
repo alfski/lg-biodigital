@@ -4,12 +4,12 @@ BioDigital on Liquid Galaxy (take 1)
 
 ## Start the websocket relayer
 
-In NodeRelayo folder is a nodejs-based websocket relayer called ```relay.j````
+In the repo NodeRelay folder is a nodejs-based websocket relayer called ```relay.js```
 
 Run this on lg-head or another place on the same LAN as the nodes.
 
-You may need to change the port the relay listens on and/or fiddle with lg-head firewall. 
-I've been running it on ws://10.42.41:5555/relay
+You may need to change the port and/or fiddle with lg-head firewall. Look in the CONFIG section at the top of relay.js.
+I've been running it on ws://10.42.41.1:5555/relay
 
 ```
 cd NodeRelay
@@ -34,16 +34,16 @@ http://HOST/PATH/lg-biodigital/control.html
 
 ## Client setup
 
-Using the LG CMS create a Scene which has each screen (L3, L2, L1, C, R1, R2, R3) running a full screen browser session with this URL like this. I'd start with DEGREES being about 65 for each screen.
+Using the LG CMS create a Scene which has each screen (L3, L2, L1, C, R1, R2, R3) running a full screen browser with this URL like this. Until the fov can be set, I'd start with a yaw offset of about 67 for each screen. So: +-67, 134, 201.
 
 ```
-http://HOST/PATH/lg-biodigital/client.html?yaw=DEGREES
+http://HOST/PATH/lg-biodigital/client.html?yaw=67
 ```
 
 You can override the ws relay address in ```config.js``` with a URL parameter. For example, 
 
 ``` 
-http://HOST/PATH/lg-biodigital/client.html?yaw=65&ws=ws://192.168.0.2:3000/relay
+http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 ```
 
 
