@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message Control {
+	required string Type = 1;
+	optional string Data = 2;
+}
