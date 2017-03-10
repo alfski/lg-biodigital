@@ -34,18 +34,33 @@ http://HOST/PATH/lg-biodigital/control.html
 
 ## Client setup
 
-Using the LG CMS create a Scene which has each screen (L3, L2, L1, C, R1, R2, R3) running a full screen browser with this URL like this. Until the fov can be set, I'd start with a yaw offset of about 67 for each screen. So: +-67, 134, 201.
+In the Galaxy CMS create a Scene which has each screen (L3, L2, L1, C, R1, R2, R3) running a full screen browser with this URL -
 
 ```
 http://HOST/PATH/lg-biodigital/client.html?yaw=67
 ```
 
-You can override the ws relay address in ```config.js``` with a URL parameter. For example, 
+Until the fov can be set, I'd start with a yaw offset of about 67 for each screen. So: +-67, 134 & 201.
+
+You can override the websocket relay address in ```config.js``` with a URL parameter.
 
 ``` 
 http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 ```
 
+## Notes
+
+* Models can take 30-60 seconds to load completely, especially the animated ones.
+
+* try Play/Stop timeline for scenes like 'Beating Heart' and 'Running Man'.
+
+* Play currently beings at the start of the cycle.
+
+* Toggle Spin does a simple axial rotation.
+
+* Toggle Laydown flicks between a preconfigured camrra pose with Z axis rotated (you can't do this from keyboard/mouse) and a normal 'upright' pose.
+
+* The clients have input disbled
 
 -- 
 Andrew (Alf) Leahy
