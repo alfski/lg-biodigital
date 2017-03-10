@@ -48,7 +48,7 @@ You can override the websocket relay address in ```config.js``` with a URL param
 http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 ```
 
-![](BioClient.jpg)
+![](BioClient1.jpg)
 
 ## Notes
 
