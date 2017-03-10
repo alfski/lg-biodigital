@@ -27,23 +27,23 @@ But there will be a couple which will need a follow-your-nose install.
 On laptop/desktop on the same LAN as the Galaxy nodes open the control page
 
 ```
-http://host/path/control.html
+http://HOST/PATH/lg-biodigital/control.html
 ```
 
 ![](BioControl1.jpg)
 
 ## Client setup
 
-Using the LG CMS create a Scene which has each screen (L3, L2, L1, C, R1, R2, R3) running a full screen browser session with this URL...
+Using the LG CMS create a Scene which has each screen (L3, L2, L1, C, R1, R2, R3) running a full screen browser session with this URL like this. I'd start with DEGREES being about 65 for each screen.
 
 ```
-http://host/path/client.html?yaw=DEGREES
+http://HOST/PATH/lg-biodigital/client.html?yaw=DEGREES
 ```
 
 You can override the ws relay address in ```config.js``` with a URL parameter. For example, 
 
 ``` 
-/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
+http://HOST/PATH/lg-biodigital/client.html?yaw=65&ws=ws://192.168.0.2:3000/relay
 ```
 
 
