@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script type='text/javascript' src='config.js?'></script>
+  <script type='text/javascript' src='js/reconnecting-websocket.min.js'></script>
+  <script type='text/javascript' src='js/utils.js'></script>
+  <script type='text/javascript' src='http://developer.biodigital.com/builds/api/2/human-api.min.js'></script>
+</head>
+<body>
+ <script type='text/javascript'>
+
+ var human;
+ var lastCamStr;
+ var lastCam = { position: { x: 0, y:0, z:0 }, target: { x: 0, y:0, z:0 }, up: { x: 0, y:0, z:0 }, zoom:0};
+ var lastTimeSent = 0;
+ var chapter; var spinInterval, spinOn = false, playOn = true;
+ var heartBeatPose = 100, heartBeatEvery = 100, timelineInterval, laydownCam = false;
+ var iframe = document.createElement('iframe');
+
+ iframe.src = getIframeSrcURL();
+ iframe.id = 'human';
+ iframe.width = '640px';
+ iframe.height = '310px';
+ iframe.onload = function() { doHuman(); };
+
+ document.body.appendChild(iframe);
+
+function getIframeSrcURL(modelString) {
+  //console.log( printConfig() );
+
+  var src = 'http://human.biodigital.com/widget/?';
+
+  if (modelString) {
+    src += modelString;
+  } else if (queryString['be']) {
+    src += 'be=' + queryString['be'];
+  } else if (queryString['m']) {
+    src += 'm=' + queryString['m'];
+  } else {
+    src += CONFIG.defaultModel;
+  }
+
+  src += '&background=' + CONFIG.background;
+  src += '&dk=' + CONFIG.humanAPIkey;
+  src += '&ui-all=false';
+
+  console.log('src='+src);
+
+  return src;
+}
+
+function doHuman() {
+
+  function ifChanged( a,b, delimiter ) {
+    var ra = Math.round(a * CONFIG.pose_accuracy);
+    var rb = Math.round(b * CONFIG.pose_accuracy);
+      if (ra != rb) {
+	return ra + delimiter;
+      } else {
+	return delimiter;
+      }
+  }
+
+  function sendCameraPose() {
+
+    human.send( 'camera.info', function(cam) {
+      //var thisCamStr = cam.position.x+','+cam.position.y+','+cam.position.z+','+cam.target.x+','+cam.target.y+','+cam.target.z+','+cam.up.x+','+cam.up.y+','+cam.up.z+','+cam.zoom;
+
+      var thisCamStr = ''; // create a pose string for only the values that have changed
+      thisCamStr += ifChanged( cam.position.x, lastCam.position.x, ',' );
+      thisCamStr += ifChanged( cam.position.y, lastCam.position.y, ',' );
+      thisCamStr += ifChanged( cam.position.z, lastCam.position.z, ',' );
+      thisCamStr += ifChanged( cam.target.x, lastCam.target.x, ',' );
+      thisCamStr += ifChanged( cam.target.y, lastCam.target.y, ',' );
+      thisCamStr += ifChanged( cam.target.z, lastCam.target.z, ',' );
+      thisCamStr += ifChanged( cam.up.x, lastCam.up.x, ',' );
+      thisCamStr += ifChanged( cam.up.y, lastCam.up.y, ',' );
+      thisCamStr += ifChanged( cam.up.z, lastCam.up.z, ',' );
+      thisCamStr += ifChanged( cam.zoom, lastCam.zoom, '' );
+
+      if (heartBeatPose == heartBeatEvery) { // send full pose every so often
+        var thisCamStr = '';
+        thisCamStr += ifChanged( cam.position.x, 0, ',' );
+        thisCamStr += ifChanged( cam.position.y, 0, ',' );
+        thisCamStr += ifChanged( cam.position.z, 0, ',' );
+        thisCamStr += ifChanged( cam.target.x, 0, ',' );
+        thisCamStr += ifChanged( cam.target.y, 0, ',' );
+        thisCamStr += ifChanged( cam.target.z, 0, ',' );
+        thisCamStr += ifChanged( cam.up.x, 10, ',' );
+        thisCamStr += ifChanged( cam.up.y, 10, ',' );
+        thisCamStr += ifChanged( cam.up.z, 10, ',' );
+        thisCamStr += ifChanged( cam.zoom, -1, '' );
+	//console.log('heart:'+thisCamStr.length+':'+thisCamStr);
+    	socketSendNoFlood( 'P' + thisCamStr );
+	heartBeatPose = 0; 
+        lastCamStr = thisCamStr;
+	lastCam = cam;
+      } else if (thisCamStr != lastCamStr && thisCamStr.length >9) {
+	//console.log('norm:'+thisCamStr.length+':'+thisCamStr);
+    	socketSendNoFlood( 'P' + thisCamStr );
+        lastCamStr = thisCamStr;
+	lastCam = cam;
+      }
+
+      heartBeatPose++;
+    });
+
+    window.requestAnimationFrame(sendCameraPose);
+  }
+
+  human = new HumanAPI('human'); 
+
+  human.on('human.ready',function () {
+   console.log("Human ready");
+
+   human.send('timeline.pause'); // stop any animations
+
+   window.requestAnimationFrame(sendCameraPose);
+
+  });
+
+}
+
+  function toggleLaydownCam() {
+    if (laydownCam) {
+      human.send('camera.set',{position:{x:0,y:90,z:-180},target:{x:0,y:90,z:0},up:{x:0,y:1,z:0},zoom:0.7});
+      laydownCam = false;
+    } else {
+      human.send('camera.set',{position:{x:90,y:90,z:0},target:{x:0,y:90,z:0},up:{x:0,y:0,z:-1},zoom:0.7});
+      laydownCam = true;
+    }
+  }
+
+  function toggleRotateCam() {
+    if (spinOn) {
+      clearInterval( spinInterval );
+      spinOn = false;
+    } else {
+      spinInterval = setInterval(function() { human.send('camera.orbit', {yaw: -0.2}) }, 40);
+      spinOn = true;
+    }
+  }
+
+  function switchModel( modelString ) {
+    console.log('newModel:'+modelString);
+    socketSend('M'+modelString);
+    iframe.src = getIframeSrcURL( modelString );
+  }
+
+  function controlPlayTimeline( playOn ) {
+    if (playOn) {
+      if (timelineInterval) { clearInterval( timelineInterval ); }
+
+      human.send('timeline.play', { loop:false } );
+      socketSend('G');
+
+      human.send('timeline.info', function(timeInfo) {
+        //console.log(JSON.stringify(timeInfo));
+	runTime = timeInfo.endTime * 1000;
+        //console.log(runTime);
+
+        timelineInterval = setInterval( function() { 
+	  console.log('Sending play every '+runTime+'ms');
+          human.send('timeline.play', { loop:false } );
+          socketSend('G');
+        }, runTime);
+
+	});
+    } else {
+      if (timelineInterval) { clearInterval( timelineInterval ); }
+      human.send('timeline.pause');
+      socketSend('S'); // stop
+    }
+  }
+
+  function socketSendNoFlood(str) {
+    if (socketOpen) {
+      var now = new Date().getTime();
+      var msElapsed = Number(now - lastTimeSent);
+      if (msElapsed > CONFIG.viewsync_delayms) {
+          socketSend(str);
+          lastTimeSent = now;
+      } else {
+	//console.log('socketSendNoFlood: DID NOT SEND');
+      }
+    }
+  }
+</script>
+</br>
+<input type='button' value="Reload Clients" onclick="socketSend('R');" />
+<input type='button' value="Play Timeline" onclick="controlPlayTimeline(true);" />
+<input type='button' value="Stop Timeline" onclick="controlPlayTimeline(false);" />
+<input type='button' value="Toggle Spin" onclick="toggleRotateCam();" />
+<input type='button' value="Toggle Laydown" onclick="toggleLaydownCam();" />
+<br>
+<br>
+<input type='radio' onclick='switchModel("be=1cCY")'/>Skeleton
+<input type='radio' onclick='switchModel("be=1cMn")'/>Cardiovascular
+<input type='radio' onclick='switchModel("be=1cMo")'/>Nervous System
+<input type='radio' onclick='switchModel("be=1e4G")'/>Beating Heart
+<input type='radio' onclick='switchModel("m=runningMan_slow_motion")'/>Running Man
+</body>
+</html>
