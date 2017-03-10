@@ -19,12 +19,12 @@ node ./relay.js
 Some additional node modules will need to be installed, an ```npm install``` should catch most of them.
 But there will be a couple which will need a follow-your-nose install.
 
-```config.js``` contains the URI that the application client.html and control.html will attempt to connect too.
-
-
 ## Control setup
 
-On laptop/desktop on the same LAN as the Galaxy nodes open the control page
+```config.js``` contains the ws URI that the control.html and client.html apps attempt to connect too.
+Check this config file and edit as needed.
+
+On a laptop/desktop on the same LAN as the Galaxy nodes open the control page -
 
 ```
 http://HOST/PATH/lg-biodigital/control.html
