@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html style='height:100%; overflow:hidden;'>
+<head>
+  <style>
+     .noborder {border:none;}
+  </style>
+  <script type='text/javascript' src='config.js?'></script>
+  <script type='text/javascript' src='js/reconnecting-websocket.min.js'></script>
+  <script type='text/javascript' src='js/utils.js'></script>
+  <script type='text/javascript' src='js/sylvester.js'></script>
+  <script type='text/javascript' src='http://developer.biodigital.com/builds/api/2/human-api.min.js'></script>
+</head>
+<body style='height:100%; margin:0'>
+<script type='text/javascript'>
+
+var human, humanReady = false;
+var iframe = document.createElement('iframe');
+var lastPose = [ 0,0,0,0,0,0,0,0,0,0 ];
+
+iframe.src = getIframeSrcURL();
+iframe.id = 'human';
+iframe.width = iframe.height = '100%';
+iframe.className = 'noborder';
+iframe.onload = function() { doHuman(); };
+
+document.body.appendChild(iframe);
+
+var rot3x3 = Matrix.RotationY( deg2Rad(CONFIG.yaw) );
+var rotMatrix = $M([
+   [rot3x3.elements[0][0], rot3x3.elements[0][1], rot3x3.elements[0][2], 0],
+   [rot3x3.elements[1][0], rot3x3.elements[1][1], rot3x3.elements[1][2], 0],
+   [rot3x3.elements[2][0], rot3x3.elements[2][1], rot3x3.elements[2][2], 0],
+   [0, 0, 0, 1]
+]);
+
+function getIframeSrcURL( modelString ) {
+
+  var src = 'http://human.biodigital.com/widget/?';
+
+  if (modelString) {
+    src += modelString;
+  } else if (queryString['be']) {
+    src += 'be=' + queryString['be'];
+  } else if (queryString['m']) {
+    src += 'm=' + queryString['m'];
+  } else {
+    src += CONFIG.defaultModel;
+  }
+
+  src += '&background=' + CONFIG.background;
+  src += '&dk=' + CONFIG.humanAPIkey;
+  src += '&ui-all=false';
+
+  console.log('src='+src);
+
+  return src;
+}
+
+function doHuman() {
+
+  human = new HumanAPI('human');
+
+  human.on('human.ready', function() {
+
+    humanReady = true;
+
+    human.send('timeline.pause'); // at launch stop any animations
+
+    human.send('camera.zoom', CONFIG.zoom );
+    human.send('camera.pan', { y:CONFIG.startY } );
+
+    human.send('ui.setDisplay', { 'info':false, 'fullscreen':false, 'help':false } );
+    human.send('ui.setDisplay', { 'nav':false, 'zoomIn':false, 'zoomOut':false } );
+    human.send('ui.setDisplay', { 'tools':false, 'center':false, 'xray':false } );
+    human.send('ui.setDisplay', { 'share':false, 'objectTree':false, 'dissect':false } );
+    human.send('ui.setDisplay', { 'annotations':false } );
+    human.send('ui.setDisplay', { 'info':false } );
+    human.send('input.disable'); 
+
+    if (queryString['xray']) { human.send('scene.enableXray'); }
+
+    //human.properties.set({'camera.optics.fov': CONFIG.fov });
+
+    //human.send('human.info', function(human) { console.log(JSON.stringify(human)); });
+
+  }); // end human ready
+
+} // end doHuman
+
+webSocket.onmessage = function(evt) {
+    handleMesg( evt.data );
+}
+
+function handleMesg(data) {
+
+  //console.log('mesg:' + data);
+  if (!data.length > 0) { return; }
+
+  var cmd = data.charAt(0);
+
+  if (data.length == 1) { // just a command
+    switch (cmd) {
+        case 'R':
+          handleReload();
+          break;
+      case 'G':
+        handlePlayTimeline(true); // Go
+        break;
+      case 'S':
+        handlePlayTimeline(false); // Stop
+        break;
+      default:
+        console.log('Unknown single cmd='+ cmd);
+    }
+  }
+  if (data.length > 1) { // command with argument
+    var arg = data.substring(1, data.length);
+    switch (cmd) {
+      case 'P':
+        handlePose(arg);
+        break;
+      case 'M':
+        handleNewModel(arg);
+        break;
+      default:
+        console.log('Unknown cmd:' + cmd + ' arg:' + arg);
+    }
+  }
+} // end handleMesg
+
+function handleReload() {
+    location.reload();
+}
+
+ function handleNewModel( modelString ) {
+   console.log(modelString);
+   iframe.src = getIframeSrcURL( modelString );
+ }
+
+ function handlePlayTimeline(playFlag) {
+   if (playFlag) {
+	human.send('timeline.play', { loop: false });
+   } else {
+	human.send('timeline.pause');
+	human.send('timeline.info', function (info) {
+	  pauseTime = info.time;
+	  console.log(pauseTime);
+	});
+   }
+	
+ }
+
+ function handlePose( newPoseStr ) {
+  //console.log('pose:',newPostStr);
+
+  var newPose = newPoseStr.split(',');
+
+  for (var i = 0; i < newPose.length; i++) { // fill in missing pose elements from lastPose
+    if (newPose[i] != '') {
+      newPose[i] = parseInt(newPose[i]) / CONFIG.pose_accuracy;
+    } else {
+      newPose[i] = lastPose[i];
+    }
+  }
+
+  var cam = cameraLookAtMatrix( newPose ), newEye = [], newTarget = [], newUp = [];
+
+  cam = rotMatrix.multiply(cam);
+  newEye[0] = cam.elements[3][0]; newEye[1] = cam.elements[3][1]; newEye[2] = cam.elements[3][2];
+  newUp[0] = cam.elements[1][0]; newUp[1] = cam.elements[1][1]; newUp[2] = cam.elements[1][2];
+  newTarget[0] = newEye[0] - cam.elements[2][0];
+  newTarget[1] = newEye[1] - cam.elements[2][1];
+  newTarget[2] = newEye[2] - cam.elements[2][2];
+
+  //console.log('position:'+p[0]+','+p[1]+','+p[2] +',zoom:'+p[9]);
+
+  if (humanReady) {
+    human.send('camera.set', {
+      position: { x:newEye[0], y:newEye[1], z:newEye[2] },
+      target: { x:newTarget[0], y:newTarget[1], z:newTarget[2] },
+      up: { x:newUp[0], y:newUp[1], z:newUp[2] },
+      zoom: newPose[9] });
+
+    lastPose = newPose;
+  }
+
+} // end handlePose
+
+  function cameraLookAtMatrix(pose) { // from ggman
+    var eye = $V([pose[0], pose[1], pose[2]]);
+    var target = $V([pose[3], pose[4], pose[5]]);
+    var up = $V([pose[6], pose[7], pose[8]]);
+
+    var vz = eye.subtract(target).toUnitVector(), // forward = target - eye;
+        vx = up.cross(vz).toUnitVector(),         // left = up.cross(forward) normalised
+        vy = vz.cross(vx);                        // up = forward.cross(left) normalised
+
+    return $M([
+       [vx.elements[0],  vx.elements[1],  vx.elements[2], 0],
+       [vy.elements[0],  vy.elements[1],  vy.elements[2], 0],
+       [vz.elements[0],  vz.elements[1],  vz.elements[2], 0],
+       [eye.elements[0], eye.elements[1], eye.elements[2], 1]
+    ]);
+  }
+
+</script>
+</body>
+</html>
