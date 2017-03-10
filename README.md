@@ -54,13 +54,15 @@ http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 
 * try Play/Stop timeline for scenes like 'Beating Heart' and 'Running Man'.
 
-* Play currently beings at the start of the cycle.
+* Play Timeline currently always jumps to the start of the animation cycle.
 
-* Toggle Spin does a simple axial rotation.
+* Toggle Spin performs a simple axial rotation.
 
-* Toggle Laydown flicks between a preconfigured camrra pose with Z axis rotated (you can't do this from keyboard/mouse) and a normal 'upright' pose.
+* Toggle Laydown flicks between a preconfigured camera pose with Z axis rotated (you can't do this from keyboard/mouse) and a typical upright pose.
 
-* The clients have input disbled
+* The clients have mouse/keyboard input disbled
+
+* The camera pose string handling stuff is overly complex because I'm experimenting with only sending the changes from the last pose. Eventually this should be simplified to a more efficient binary ProtocolBuffer.
 
 -- 
 Andrew (Alf) Leahy
