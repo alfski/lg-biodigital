@@ -67,4 +67,4 @@ http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 * The camera pose string handling is overly complex because I'm experimenting with only sending the changes from last pose. Eventually this should be simplified to a more efficient binary ProtocolBuffer.
 
 -- 
-Andrew (Alf) Leahy | Wonderama Lab | School of Computing, Engineering & Mathematics | Western Sydney University
+Andrew (Alf) Leahy | [Wonderama Lab](http://wonderama.scem.ws) | [School of Computing, Engineering & Mathematics](https://www.westernsydney.edu.au/scem/school_of_computing_engineering_and_mathematics) | [Western Sydney University](https://www.westernsydney.edu.au/)
