@@ -30,7 +30,7 @@ On a laptop/desktop on the same LAN as the Galaxy nodes open the control page -
 http://HOST/PATH/lg-biodigital/control.html
 ```
 
-![](BioControl1.jpg)
+![](README/BioControl1.jpg)
 
 ## Client setup
 
@@ -48,23 +48,23 @@ You can override the websocket relay address in ```config.js``` with a URL param
 http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 ```
 
-![](BioClient1.jpg)
+![](README/BioClient1.jpg)
 
 ## Notes
 
-* Models can take 30-60 seconds to load completely, especially the animated ones.
+* Biodigital models can take 30-60 seconds to load completely, especially the animated ones.
 
-* try Play/Stop timeline for scenes like 'Beating Heart' and 'Running Man'.
+* try Play/Stop Timeline for scenes like 'Respiration' and 'Running Man'.
 
-* Play Timeline currently always jumps to the start of the animation cycle.
+* Play Timeline button currently always jumps to the start of the animation cycle.
 
-* Toggle Spin performs a simple axial rotation.
+* Toggle Spin button performs a simple axial rotation.
 
-* Toggle Laydown flicks between a preconfigured camera pose with Z axis rotated (you can't do this from keyboard/mouse) and a typical upright pose.
+* Toggle Laydown button alternates between a preconfigured camera pose with Z axis rotate and a typical upright pose. You can't do this from keyboard/mouse control.
 
 * The clients have mouse/keyboard input disbled
 
 * The camera pose string handling stuff is overly complex because I'm experimenting with only sending the changes from the last pose. Eventually this should be simplified to a more efficient binary ProtocolBuffer.
 
 -- 
-Andrew (Alf) Leahy
+Andrew (Alf) Leahy | Wonderama Lab | Western Sydney University
