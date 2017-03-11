@@ -54,17 +54,17 @@ http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 
 * Biodigital models can take 30-60 seconds to load completely, especially the animated ones.
 
-* try Play/Stop Timeline for scenes like 'Respiration' and 'Running Man'.
+* Try the 'Play/Stop Timeline' buttons on scenes like 'Respiration' and 'Running Man'.
 
-* Play Timeline button currently always jumps to the start of the animation cycle.
+* 'Play Timeline' button currently always jumps to the start of the animation cycle.
 
-* Toggle Spin button performs a simple axial rotation.
+* 'Toggle Spin' button performs a simple axial rotation.
 
-* Toggle Laydown button alternates between a preconfigured camera pose with Z axis rotate and a typical upright pose. You can't do this from keyboard/mouse control.
+* 'Toggle Laydown' button alternates between a preconfigured camera pose with Z axis rotate and a typical upright pose. You can't do this from keyboard/mouse control.
 
 * The clients have mouse/keyboard input disbled
 
-* The camera pose string handling stuff is overly complex because I'm experimenting with only sending the changes from the last pose. Eventually this should be simplified to a more efficient binary ProtocolBuffer.
+* The camera pose string handling is overly complex because I'm experimenting with only sending the changes from last pose. Eventually this should be simplified to a more efficient binary ProtocolBuffer.
 
 -- 
-Andrew (Alf) Leahy | Wonderama Lab | Western Sydney University
+Andrew (Alf) Leahy | Wonderama Lab | School of Computing, Engineering & Mathematics | Western Sydney University
