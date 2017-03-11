@@ -19,7 +19,7 @@
 
  iframe.src = getIframeSrcURL();
  iframe.id = 'human';
- iframe.width = '640px';
+ iframe.width = '605px';
  iframe.height = '310px';
  iframe.onload = function() { doHuman(); };
 
@@ -160,7 +160,7 @@ function doHuman() {
         //console.log(runTime);
 
         timelineInterval = setInterval( function() { 
-	  console.log('Sending play every '+runTime+'ms');
+	  console.log('Sending Play every '+runTime+'ms');
           human.send('timeline.play', { loop:false } );
           socketSend('G');
         }, runTime);
@@ -187,17 +187,21 @@ function doHuman() {
   }
 </script>
 </br>
+<img src='thumbs/xray.jpg' onclick='switchModel("be=1cMB")' title='XRay Man'>
+<img src='thumbs/skeleton.jpg' onclick='switchModel("be=1cCY")' title='Skeleton'>
+<img src='thumbs/cardio.jpg' onclick='switchModel("be=1cMn")' title='Cardiovascular'>
+<img src='thumbs/nervous.jpg' onclick='switchModel("be=1cMo")' title='Nervous System'>
+<img src='thumbs/respiration.jpg' onclick='switchModel("be=1e4G")' title='Respiration'>
+<img src='thumbs/running.jpg' onclick='switchModel("m=runningMan_slow_motion")' title='Running Man'>
+<img src='thumbs/blank.jpg' title='Blank'>
+<img src='thumbs/blank.jpg' title='Blank'>
+<img src='thumbs/blank.jpg' title='Blank'>
+</br>
 <input type='button' value="Reload Clients" onclick="socketSend('R');" />
 <input type='button' value="Play Timeline" onclick="controlPlayTimeline(true);" />
 <input type='button' value="Stop Timeline" onclick="controlPlayTimeline(false);" />
 <input type='button' value="Toggle Spin" onclick="toggleRotateCam();" />
 <input type='button' value="Toggle Laydown" onclick="toggleLaydownCam();" />
 <br>
-<br>
-<input type='radio' onclick='switchModel("be=1cCY")'/>Skeleton
-<input type='radio' onclick='switchModel("be=1cMn")'/>Cardiovascular
-<input type='radio' onclick='switchModel("be=1cMo")'/>Nervous System
-<input type='radio' onclick='switchModel("be=1e4G")'/>Respiration
-<input type='radio' onclick='switchModel("m=runningMan_slow_motion")'/>Running Man
 </body>
 </html>
