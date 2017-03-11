@@ -30,7 +30,7 @@ On a laptop/desktop on the same LAN as the Galaxy nodes open the control page -
 http://HOST/PATH/lg-biodigital/control.html
 ```
 
-![](README/BioControl1.jpg)
+![](README/BioControl2.jpg)
 
 ## Client setup
 
