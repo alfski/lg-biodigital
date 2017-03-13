@@ -106,10 +106,10 @@ function handleMesg( data ) {
         handleReload();
         break;
       case 'G':
-        handleStartTimeline();
+        handleStartAnimation();
         break;
       case 'S':
-        handleStopTimeline();
+        handleStopAnimation();
         break;
       default:
         console.log( 'Unknown single cmd='+ cmd );
@@ -138,11 +138,11 @@ function handleReload() {
    iframe.src = getIframeSrcURL( modelString );
  }
 
- function handleStartTimeline() {
+ function handleStartAnimation() {
     human.send( 'timeline.play', { loop: false } );
  }
 
- function handleStopTimeline() {
+ function handleStopAnimation() {
     human.send( 'timeline.pause' );
  }
 	

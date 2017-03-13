@@ -54,9 +54,9 @@ http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 
 * Biodigital models can take 30-60 seconds to load completely, especially the animated ones.
 
-* Try the 'Play/Stop Timeline' buttons on scenes like 'Respiration' and 'Running Man'.
+* Try the 'Play/Stop Animation' buttons on scenes like 'Respiration' and 'Running Man'.
 
-* 'Play Timeline' button currently always jumps to the start of the animation cycle.
+* 'Play Animation' button currently always jumps to the start of the animation cycle.
 
 * 'Toggle Spin' button performs a simple axial rotation.
 

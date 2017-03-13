@@ -10,10 +10,9 @@
  <script type='text/javascript'>
 
  var human;
- var lastCamStr;
+ var lastCamStr, lastTimeSent = 0;
  var lastCam = { position: { x: 0, y:0, z:0 }, target: { x: 0, y:0, z:0 }, up: { x: 0, y:0, z:0 }, zoom:0};
- var lastTimeSent = 0;
- var chapter, spinInterval, spinOn = false;
+ var spinInterval, spinOn = false;
  var heartBeatPose = 100, heartBeatEvery = 100, timelineInterval, laydownCam = false;
  var iframe = document.createElement( 'iframe' );
 
@@ -93,7 +92,6 @@ function doHuman() {
         lastCamStr = thisCamStr;
 	lastCam = cam;
       } else if (thisCamStr != lastCamStr && thisCamStr.length >9) {
-	//console.log('norm:'+thisCamStr.length+':'+thisCamStr);
     	socketSendNoFlood( 'P' + thisCamStr );
         lastCamStr = thisCamStr;
 	lastCam = cam;
@@ -119,7 +117,7 @@ function doHuman() {
       human.send( 'camera.set',{position:{x:0,y:90,z:-180},target:{x:0,y:90,z:0},up:{x:0,y:1,z:0},zoom:0.7});
       laydownCam = false;
     } else {
-      human.send('camera.set',{position:{x:90,y:90,z:0},target:{x:0,y:90,z:0},up:{x:0,y:0,z:-1},zoom:0.7});
+      human.send( 'camera.set',{position:{x:90,y:90,z:0},target:{x:0,y:90,z:0},up:{x:0,y:0,z:-1},zoom:0.7});
       laydownCam = true;
     }
   }
@@ -129,19 +127,19 @@ function doHuman() {
       clearInterval( spinInterval );
       spinOn = false;
     } else {
-      spinInterval = setInterval(function() { human.send('camera.orbit', {yaw: -0.2}) }, 40);
+      spinInterval = setInterval(function() { human.send( 'camera.orbit', {yaw: -0.2}) }, 40);
       spinOn = true;
     }
   }
 
   function switchModel( modelString ) {
-    console.log('newModel:'+modelString);
-    stopTimeline();
-    socketSend('M'+modelString);
+    console.log( 'newModel:' + modelString );
+    stopAnimation();
+    socketSend( 'M' + modelString );
     iframe.src = getIframeSrcURL( modelString );
   }
 
-  function startTimeline() {
+  function startAnimation() {
     if (timelineInterval) { clearInterval( timelineInterval ); }
 
     human.send( 'timeline.play', { loop:false } );
@@ -149,18 +147,18 @@ function doHuman() {
 
     human.send( 'timeline.info', function( timeInfo )  {
 
-      var runTime = timeInfo.endTime * 1000;
-      console.log( 'Sending Play every ' + runTime + 'ms' );
+      var animationDuration = timeInfo.endTime * 1000;
+      console.log( 'Sending Play every ' + animationDuration + 'ms' );
 
       timelineInterval = setInterval( function() {  // set a repeating play command
         human.send( 'timeline.play', { loop:false } );
-        socketSend( 'G') ;
-      }, runTime );
+        socketSend( 'G' ) ;
+      }, animationDuration );
 
     });
   } 
 
-  function stopTimeline() {
+  function stopAnimation() {
       if (timelineInterval) { clearInterval( timelineInterval ); }
 
       human.send( 'timeline.pause' );
@@ -191,9 +189,9 @@ function doHuman() {
 <img src='thumbs/blank.jpg' title='Blank'>
 <img src='thumbs/blank.jpg' title='Blank'>
 </br>
-<input type='button' value='Reload Clients' onclick="socketSend('R');" />
-<input type='button' value='Play Timeline' onclick="startTimeline();" />
-<input type='button' value='Stop Timeline' onclick="stopTimeline();" />
+<input type='button' value='Reload Clients' onclick="socketSend( 'R' );" />
+<input type='button' value='Play Animation' onclick="startAnimation();" />
+<input type='button' value='Stop Animation' onclick="stopAnimation();" />
 <input type='button' value='Toggle Spin' onclick="toggleRotateCam();" />
 <input type='button' value='Toggle Laydown' onclick="toggleLaydownCam();" />
 <input type='button' value='Relay Not OK' style='background-color:#ff8080' id='RelayStatus' />
