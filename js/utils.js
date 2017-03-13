@@ -21,7 +21,7 @@ function getQueryStringVars() {
     return server_variables;
 }
 
-var socketOpen = false;
+var webSocket, socketOpen = false;
 var queryString = getQueryStringVars();
 
 // overwrite some global CONFIG params with queryString params
@@ -32,12 +32,30 @@ if (queryString['background']) { CONFIG.background = queryString['background']; 
 if (queryString['zoom']) { CONFIG.zoom = queryString['zoom']; }
 if (queryString['startY']) { CONFIG.startY = queryString['startY']; }
 
-var webSocket = new ReconnectingWebSocket( CONFIG.ws );
+function connectToRelay() {
+  webSocket = new ReconnectingWebSocket( CONFIG.ws );
 
-webSocket.onopen = function() {
+  webSocket.onopen = function() {
     socketOpen = true;
-    console.log("webSocketOpen");
-};
+    if (document.getElementById('RelayStatus')) {
+      document.getElementById('RelayStatus').style.backgroundColor = '#80ff80';
+      document.getElementById('RelayStatus').value = 'Relay OK';
+    }
+  }
+
+  webSocket.onclose = function() {
+    socketOpen = false;
+    if (document.getElementById('RelayStatus')) {
+      document.getElementById('RelayStatus').style.backgroundColor = '#ff8080';
+      document.getElementById('RelayStatus').value = 'Relay Not OK';
+    }
+  }
+
+  webSocket.onmessage = function( evt ) {
+    handleMesg( evt.data );
+  }
+
+}
 
 function socketSend( str ) {
   if (socketOpen) {

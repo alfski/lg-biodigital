@@ -2,7 +2,8 @@
 <html style='height:100%; overflow:hidden;'>
 <head>
   <style>
-     .noborder {border:none;}
+     .noborder { border:none; }
+     body { height:100%; margin:0 }
   </style>
   <script type='text/javascript' src='config.js?'></script>
   <script type='text/javascript' src='js/reconnecting-websocket.min.js'></script>
@@ -10,11 +11,11 @@
   <script type='text/javascript' src='js/sylvester.js'></script>
   <script type='text/javascript' src='http://developer.biodigital.com/builds/api/2/human-api.min.js'></script>
 </head>
-<body style='height:100%; margin:0'>
+<body onLoad='connectToRelay()'>
 <script type='text/javascript'>
 
 var human, humanReady = false;
-var iframe = document.createElement('iframe');
+var iframe = document.createElement( 'iframe' );
 var lastPose = [ 0,0,0,0,0,0,0,0,0,0 ];
 
 iframe.src = getIframeSrcURL();
@@ -51,47 +52,49 @@ function getIframeSrcURL( modelString ) {
   src += '&dk=' + CONFIG.humanAPIkey;
   src += '&ui-all=false';
 
-  //console.log('src='+src);
+  //console.log( 'src='+src);
 
   return src;
 }
 
 function doHuman() {
 
-  human = new HumanAPI('humanIframe');
+  human = new HumanAPI( 'humanIframe' );
 
-  human.on('human.ready', function() {
+  human.on( 'human.ready', function() {
 
     humanReady = true;
 
-    human.send('timeline.pause'); // at launch stop any animations
+    human.send( 'timeline.pause' ); // at launch stop any animations
 
-    human.send('camera.zoom', CONFIG.zoom );
-    human.send('camera.pan', { y:CONFIG.startY } );
+    human.send( 'camera.zoom', CONFIG.zoom );
+    human.send( 'camera.pan', { y:CONFIG.startY } );
 
-    human.send('ui.setDisplay', { 'info':false, 'fullscreen':false, 'help':false } );
-    human.send('ui.setDisplay', { 'nav':false, 'zoomIn':false, 'zoomOut':false } );
-    human.send('ui.setDisplay', { 'tools':false, 'center':false, 'xray':false } );
-    human.send('ui.setDisplay', { 'share':false, 'objectTree':false, 'dissect':false } );
-    human.send('ui.setDisplay', { 'annotations':false } );
-    human.send('ui.setDisplay', { 'info':false } );
-    human.send('input.disable'); 
+    human.send( 'ui.setDisplay', { 'info':false, 'fullscreen':false, 'help':false } );
+    human.send( 'ui.setDisplay', { 'nav':false, 'zoomIn':false, 'zoomOut':false } );
+    human.send( 'ui.setDisplay', { 'tools':false, 'center':false, 'xray':false } );
+    human.send( 'ui.setDisplay', { 'share':false, 'objectTree':false, 'dissect':false } );
+    human.send( 'ui.setDisplay', { 'annotations':false } );
+    human.send( 'ui.setDisplay', { 'info':false } );
+    human.send( 'input.disable' ); 
 
-    if (queryString['xray']) { human.send('scene.enableXray'); }
+    if (queryString['xray']) { human.send( 'scene.enableXray' ); }
 
     //human.properties.set({'camera.optics.fov': CONFIG.fov });
 
-    //human.send('human.info', function(human) { console.log(JSON.stringify(human)); });
+    //human.send( 'human.info', function(human) { console.log(JSON.stringify(human)); });
 
   }); // end human.ready
 
 } // end doHuman
 
-webSocket.onmessage = function(evt) {
+/*
+webSocket.onmessage = function( evt ) {
     handleMesg( evt.data );
 }
+*/
 
-function handleMesg(data) {
+function handleMesg( data ) {
 
   if (!data.length > 0) { return; }
 
@@ -109,10 +112,9 @@ function handleMesg(data) {
         handleStopTimeline();
         break;
       default:
-        console.log('Unknown single cmd='+ cmd);
+        console.log( 'Unknown single cmd='+ cmd );
     }
-  }
-  if (data.length > 1) { // command with argument
+  } else if (data.length > 1) { // command with argument
     var arg = data.substring(1, data.length);
     switch (cmd) {
       case 'P':
@@ -122,7 +124,7 @@ function handleMesg(data) {
         handleNewModel(arg);
         break;
       default:
-        console.log('Unknown cmd:' + cmd + ' arg:' + arg);
+        console.log( 'Unknown cmd:' + cmd + ' arg:' + arg );
     }
   }
 } // end handleMesg
@@ -137,11 +139,11 @@ function handleReload() {
  }
 
  function handleStartTimeline() {
-    human.send('timeline.play', { loop: false });
+    human.send( 'timeline.play', { loop: false } );
  }
 
  function handleStopTimeline() {
-    human.send('timeline.pause' );
+    human.send( 'timeline.pause' );
  }
 	
  function handlePose( newPoseStr ) {
@@ -150,7 +152,7 @@ function handleReload() {
 
   for (var i = 0; i < newPose.length; i++) { // fill in missing pose elements from lastPose
     if (newPose[i] != '') {
-      newPose[i] = parseInt(newPose[i]) / CONFIG.pose_accuracy;
+      newPose[i] = parseInt( newPose[i] ) / CONFIG.pose_accuracy;
     } else {
       newPose[i] = lastPose[i];
     }
@@ -168,7 +170,7 @@ function handleReload() {
   //console.log('position:'+p[0]+','+p[1]+','+p[2] +',zoom:'+p[9]);
 
   if (humanReady) {
-    human.send('camera.set', {
+    human.send( 'camera.set', {
       position: { x:newEye[0], y:newEye[1], z:newEye[2] },
       target: { x:newTarget[0], y:newTarget[1], z:newTarget[2] },
       up: { x:newUp[0], y:newUp[1], z:newUp[2] },
