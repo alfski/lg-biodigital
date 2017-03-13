@@ -16,7 +16,7 @@
 
 var human, humanReady = false;
 var iframe = document.createElement( 'iframe' );
-var lastPose = [ 0,0,0,0,0,0,0,0,0,0 ];
+var lastPose = [ 0,0,0,0,0,0,0,0,0,0 ], lastPicked ='';
 
 iframe.src = getIframeSrcURL();
 iframe.id = 'humanIframe';
@@ -126,6 +126,9 @@ function handleMesg( data ) {
       case 'X':
         handleXray( arg );
         break;
+      case 'I':
+        handlePickedObject( arg );
+        break;
       default:
         console.log( 'Unknown cmd:' + cmd + ' arg:' + arg );
     }
@@ -149,17 +152,27 @@ function handleReload() {
     human.send( 'timeline.pause' );
  }
 	
+ function handlePickedObject( picked ) {
+   console.log( 'Picked: ' + picked );
+
+   if (picked != lastPicked) {
+     var pick = JSON.parse( '{"' + picked + '":true,"' + lastPicked + '":false}' );
+     human.send( 'scene.selectObjects', pick );
+     lastPicked = picked;
+   }
+ }
+
  function handleXray( xrayArg ) {
    if (xrayArg == '1') {
-     human.send('scene.enableXray');
+     human.send( 'scene.enableXray' );
    } else {
-     human.send('scene.disableXray');
+     human.send( 'scene.disableXray' );
    }
  }
 
  function handlePose( newPoseStr ) {
 
-  var newPose = newPoseStr.split(',');
+  var newPose = newPoseStr.split( ',' );
 
   for (var i = 0; i < newPose.length; i++) { // fill in missing pose elements from lastPose
     if (newPose[i] != '') {
@@ -178,7 +191,7 @@ function handleReload() {
   newTarget[1] = newEye[1] - cam.elements[2][1];
   newTarget[2] = newEye[2] - cam.elements[2][2];
 
-  //console.log('position:'+p[0]+','+p[1]+','+p[2] +',zoom:'+p[9]);
+  //console.log( 'position:'+p[0]+','+p[1]+','+p[2] +',zoom:'+p[9]);
 
   if (humanReady) {
     human.send( 'camera.set', {

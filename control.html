@@ -107,6 +107,7 @@ function doHuman() {
 
   human.on( 'human.ready', function () {
     human.send( 'timeline.pause' ); // stop any animations
+    human.on( 'scene.picked', function(pick) { handleObjectPicking(pick); } );
     window.requestAnimationFrame( sendCameraPose );
   });
 
@@ -132,9 +133,16 @@ function doHuman() {
     }
   }
 
+  function handleObjectPicking( pickEvent ) {
+    console.log( 'picked:' + pickEvent.objectId );
+    socketSend( 'I' + pickEvent.objectId );
+  }
+
   function switchModel( modelString ) {
     console.log( 'newModel:' + modelString );
     stopAnimation();
+    clearInterval( spinInterval );
+    spinOn = false;
     socketSend( 'M' + modelString );
     iframe.src = getIframeSrcURL( modelString );
   }
