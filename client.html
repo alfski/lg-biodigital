@@ -18,7 +18,7 @@ var iframe = document.createElement('iframe');
 var lastPose = [ 0,0,0,0,0,0,0,0,0,0 ];
 
 iframe.src = getIframeSrcURL();
-iframe.id = 'human';
+iframe.id = 'humanIframe';
 iframe.width = iframe.height = '100%';
 iframe.className = 'noborder';
 iframe.onload = function() { doHuman(); };
@@ -51,14 +51,14 @@ function getIframeSrcURL( modelString ) {
   src += '&dk=' + CONFIG.humanAPIkey;
   src += '&ui-all=false';
 
-  console.log('src='+src);
+  //console.log('src='+src);
 
   return src;
 }
 
 function doHuman() {
 
-  human = new HumanAPI('human');
+  human = new HumanAPI('humanIframe');
 
   human.on('human.ready', function() {
 
@@ -83,7 +83,7 @@ function doHuman() {
 
     //human.send('human.info', function(human) { console.log(JSON.stringify(human)); });
 
-  }); // end human ready
+  }); // end human.ready
 
 } // end doHuman
 
@@ -93,21 +93,20 @@ webSocket.onmessage = function(evt) {
 
 function handleMesg(data) {
 
-  //console.log('mesg:' + data);
   if (!data.length > 0) { return; }
 
   var cmd = data.charAt(0);
 
   if (data.length == 1) { // just a command
     switch (cmd) {
-        case 'R':
-          handleReload();
-          break;
+      case 'R':
+        handleReload();
+        break;
       case 'G':
-        handlePlayTimeline(true); // Go
+        handleStartTimeline();
         break;
       case 'S':
-        handlePlayTimeline(false); // Stop
+        handleStopTimeline();
         break;
       default:
         console.log('Unknown single cmd='+ cmd);
@@ -133,25 +132,19 @@ function handleReload() {
 }
 
  function handleNewModel( modelString ) {
-   console.log(modelString);
+   //console.log(modelString);
    iframe.src = getIframeSrcURL( modelString );
  }
 
- function handlePlayTimeline(playFlag) {
-   if (playFlag) {
-	human.send('timeline.play', { loop: false });
-   } else {
-	human.send('timeline.pause');
-	human.send('timeline.info', function (info) {
-	  pauseTime = info.time;
-	  console.log(pauseTime);
-	});
-   }
-	
+ function handleStartTimeline() {
+    human.send('timeline.play', { loop: false });
  }
 
+ function handleStopTimeline() {
+    human.send('timeline.pause' );
+ }
+	
  function handlePose( newPoseStr ) {
-  //console.log('pose:',newPostStr);
 
   var newPose = newPoseStr.split(',');
 
@@ -202,7 +195,6 @@ function handleReload() {
        [eye.elements[0], eye.elements[1], eye.elements[2], 1]
     ]);
   }
-
 </script>
 </body>
 </html>

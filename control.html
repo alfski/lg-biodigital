@@ -13,12 +13,12 @@
  var lastCamStr;
  var lastCam = { position: { x: 0, y:0, z:0 }, target: { x: 0, y:0, z:0 }, up: { x: 0, y:0, z:0 }, zoom:0};
  var lastTimeSent = 0;
- var chapter; var spinInterval, spinOn = false, playOn = true;
+ var chapter, spinInterval, spinOn = false;
  var heartBeatPose = 100, heartBeatEvery = 100, timelineInterval, laydownCam = false;
  var iframe = document.createElement('iframe');
 
  iframe.src = getIframeSrcURL();
- iframe.id = 'human';
+ iframe.id = 'humanIframe';
  iframe.width = '605px';
  iframe.height = '310px';
  iframe.onload = function() { doHuman(); };
@@ -108,22 +108,22 @@ function doHuman() {
     window.requestAnimationFrame(sendCameraPose);
   }
 
-  human = new HumanAPI('human'); 
+  human = new HumanAPI('humanIframe'); 
 
   human.on('human.ready',function () {
    console.log("Human ready");
 
    human.send('timeline.pause'); // stop any animations
 
-   window.requestAnimationFrame(sendCameraPose);
+   window.requestAnimationFrame( sendCameraPose );
 
-  });
+  }); // end human.ready
 
 }
 
   function toggleLaydownCam() {
     if (laydownCam) {
-      human.send('camera.set',{position:{x:0,y:90,z:-180},target:{x:0,y:90,z:0},up:{x:0,y:1,z:0},zoom:0.7});
+      human.send( 'camera.set',{position:{x:0,y:90,z:-180},target:{x:0,y:90,z:0},up:{x:0,y:1,z:0},zoom:0.7});
       laydownCam = false;
     } else {
       human.send('camera.set',{position:{x:90,y:90,z:0},target:{x:0,y:90,z:0},up:{x:0,y:0,z:-1},zoom:0.7});
@@ -147,30 +147,30 @@ function doHuman() {
     iframe.src = getIframeSrcURL( modelString );
   }
 
-  function controlPlayTimeline( playOn ) {
-    if (playOn) {
+  function controlStartTimeline() {
+    if (timelineInterval) { clearInterval( timelineInterval ); }
+
+    human.send( 'timeline.play', { loop:false } );
+    socketSend( 'G' );
+
+    human.send( 'timeline.info', function( timeInfo )  {
+
+      var runTime = timeInfo.endTime * 1000;
+      console.log( 'Sending Play every ' + runTime + 'ms' );
+
+      timelineInterval = setInterval( function() {  // set a repeating play command
+        human.send( 'timeline.play', { loop:false } );
+        socketSend( 'G') ;
+      }, runTime );
+
+    });
+  } 
+
+  function controlStopTimeline() {
       if (timelineInterval) { clearInterval( timelineInterval ); }
 
-      human.send('timeline.play', { loop:false } );
-      socketSend('G');
-
-      human.send('timeline.info', function(timeInfo) {
-        //console.log(JSON.stringify(timeInfo));
-	runTime = timeInfo.endTime * 1000;
-        //console.log(runTime);
-
-        timelineInterval = setInterval( function() { 
-	  console.log('Sending Play every '+runTime+'ms');
-          human.send('timeline.play', { loop:false } );
-          socketSend('G');
-        }, runTime);
-
-	});
-    } else {
-      if (timelineInterval) { clearInterval( timelineInterval ); }
-      human.send('timeline.pause');
-      socketSend('S'); // stop
-    }
+      human.send( 'timeline.pause' );
+      socketSend( 'S' ); // stop command
   }
 
   function socketSendNoFlood(str) {
@@ -178,7 +178,7 @@ function doHuman() {
       var now = new Date().getTime();
       var msElapsed = Number(now - lastTimeSent);
       if (msElapsed > CONFIG.viewsync_delayms) {
-          socketSend(str);
+          socketSend( str );
           lastTimeSent = now;
       } else {
 	//console.log('socketSendNoFlood: DID NOT SEND');
@@ -198,10 +198,9 @@ function doHuman() {
 <img src='thumbs/blank.jpg' title='Blank'>
 </br>
 <input type='button' value="Reload Clients" onclick="socketSend('R');" />
-<input type='button' value="Play Timeline" onclick="controlPlayTimeline(true);" />
-<input type='button' value="Stop Timeline" onclick="controlPlayTimeline(false);" />
+<input type='button' value="Play Timeline" onclick="controlStartTimeline();" />
+<input type='button' value="Stop Timeline" onclick="controlStopTimeline();" />
 <input type='button' value="Toggle Spin" onclick="toggleRotateCam();" />
 <input type='button' value="Toggle Laydown" onclick="toggleLaydownCam();" />
-<br>
 </body>
 </html>

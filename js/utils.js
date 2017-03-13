@@ -37,12 +37,7 @@ var webSocket = new ReconnectingWebSocket( CONFIG.ws );
 webSocket.onopen = function() {
     socketOpen = true;
     console.log("webSocketOpen");
-    //webSocket.send("sink");
 };
-
-/* webSocket.onmessage = function( evt ) {
-    handleMesg( evt.data );
-} */
 
 function socketSend( str ) {
   if (socketOpen) {
@@ -79,4 +74,3 @@ function getJSON(url, callback){
 }
 
 function deg2Rad(angle) { return (angle/180) * Math.PI; }
-
