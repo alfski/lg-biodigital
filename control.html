@@ -12,7 +12,7 @@
  var human;
  var lastCamStr, lastTimeSent = 0;
  var lastCam = { position: { x: 0, y:0, z:0 }, target: { x: 0, y:0, z:0 }, up: { x: 0, y:0, z:0 }, zoom:0};
- var spinInterval, spinOn = false;
+ var spinInterval, spinOn = false, animationOn = false, xrayOn = false;
  var heartBeatPose = 100, heartBeatEvery = 100, timelineInterval, laydownCam = false;
  var iframe = document.createElement( 'iframe' );
 
@@ -139,6 +139,16 @@ function doHuman() {
     iframe.src = getIframeSrcURL( modelString );
   }
 
+  function toggleAnimation() {
+    if (animationOn) {
+      stopAnimation();
+      animationOn = false;
+    } else {
+      startAnimation();
+      animationOn = true;
+    }
+  }
+
   function startAnimation() {
     if (timelineInterval) { clearInterval( timelineInterval ); }
 
@@ -163,6 +173,18 @@ function doHuman() {
 
       human.send( 'timeline.pause' );
       socketSend( 'S' ); // stop command
+  }
+
+  function toggleXray() {
+    if (xrayOn) {
+      human.send( 'scene.disableXray' );
+      socketSend( 'X0' );
+      xrayOn = false;
+    } else {
+      human.send( 'scene.enableXray' );
+      socketSend( 'X1' );
+      xrayOn = true;
+    }
   }
 
   function socketSendNoFlood( str ) {
@@ -190,10 +212,10 @@ function doHuman() {
 <img src='thumbs/blank.jpg' title='Blank'>
 </br>
 <input type='button' value='Reload Clients' onclick="socketSend( 'R' );" />
-<input type='button' value='Play Animation' onclick="startAnimation();" />
-<input type='button' value='Stop Animation' onclick="stopAnimation();" />
+<input type='button' value='Toggle Animation' onclick="toggleAnimation();" />
 <input type='button' value='Toggle Spin' onclick="toggleRotateCam();" />
 <input type='button' value='Toggle Laydown' onclick="toggleLaydownCam();" />
+<input type='button' value='Toggle Xray' onclick="toggleXray();" />
 <input type='button' value='Relay Not OK' style='background-color:#ff8080' id='RelayStatus' />
 </body>
 </html>

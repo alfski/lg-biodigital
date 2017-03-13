@@ -118,10 +118,13 @@ function handleMesg( data ) {
     var arg = data.substring(1, data.length);
     switch (cmd) {
       case 'P':
-        handlePose(arg);
+        handlePose( arg );
         break;
       case 'M':
-        handleNewModel(arg);
+        handleNewModel( arg );
+        break;
+      case 'X':
+        handleXray( arg );
         break;
       default:
         console.log( 'Unknown cmd:' + cmd + ' arg:' + arg );
@@ -146,6 +149,14 @@ function handleReload() {
     human.send( 'timeline.pause' );
  }
 	
+ function handleXray( xrayArg ) {
+   if (xrayArg == '1') {
+     human.send('scene.enableXray');
+   } else {
+     human.send('scene.disableXray');
+   }
+ }
+
  function handlePose( newPoseStr ) {
 
   var newPose = newPoseStr.split(',');
