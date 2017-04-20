@@ -52,6 +52,8 @@ http://HOST/PATH/lg-biodigital/client.html?yaw=67&ws=ws://192.168.0.2:3000/relay
 
 ## Notes
 
+* Run client Chrome's with "--disable-web-security --user-data-dir=A_FOLDER" to get fov setting to work.
+
 * Biodigital models can take 30-60 seconds to load completely, especially the animated ones.
 
 * Try the 'Play/Stop Animation' buttons on scenes like 'Respiration' and 'Running Man'.

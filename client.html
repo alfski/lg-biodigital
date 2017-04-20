@@ -80,7 +80,7 @@ function doHuman() {
 
     if (queryString['xray']) { human.send( 'scene.enableXray' ); }
 
-    //human.properties.set({'camera.optics.fov': CONFIG.fov });
+    document.getElementById('humanIframe').contentWindow.Human.properties.set({ 'camera.optics.fov': CONFIG.fov });
 
     //human.send( 'human.info', function(human) { console.log(JSON.stringify(human)); });
 
